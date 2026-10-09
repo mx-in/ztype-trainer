@@ -21,6 +21,31 @@ e.g. Using [http-server](https://www.npmjs.com/package/http-server)
 
 and visit ```http://localhost:8080```
 
+No Node.js? Python works too:
+
+	cd ztype-trainer
+	python3 -m http.server 8080
+
+Opening `index.html` directly as a `file://` URL does not work: the game loads its images and sounds over HTTP.
+
+The trainer still downloads jQuery from `apps.bdimg.com` at startup, so you need an internet connection even in offline mode.
+
+## Debugging
+1. Open Chrome DevTools (<kbd>F12</kbd>, or <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>I</kbd> on macOS).
+2. If the "Trainer Activated" banner is missing above the game, check the ```Network``` tab: the jQuery request to `apps.bdimg.com` must succeed before any cheat installs.
+3. Inspect the game and the trainer from the ```Console``` tab:
+```
+ig.version               // must be '1.24'
+ig.game.mode             // 0 title, 1 playing, 2 game over
+ig.game.currentTarget    // enemy being shot (should never be the player ship)
+ig.game.emps             // EMPs left
+trainer                  // all cheat functions, e.g. trainer.machineGun(), trainer.deactivateAll()
+```
+4. To set breakpoints, use the ```Sources``` tab. `ztype.js` is not minified, so you can break inside the game itself, e.g. in `shoot` in the `game.main` module (line 5389). Breakpoints in `ztype-trainer.js` work the same way.
+5. After editing `ztype-trainer.js`, reload the page (<kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> skips the cache). Don't load the trainer a second time into the same page: every hotkey then fires twice and cancels itself.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for how the trainer hooks into the game.
+
 ## Key Bindings
 |Shortcut|Function|
 |----|----|
